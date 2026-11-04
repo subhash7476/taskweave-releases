@@ -1,0 +1,174 @@
+# Changelog
+
+All notable changes to TaskWeave. Releases are published on the public TaskWeave releases page (https://github.com/subhash7476/taskweave-releases/releases); TaskWeave is not published to PyPI.
+
+## 0.2.0 (2026-11-04)
+
+The first final release of 0.2.0. It adds everything below to `0.2.0rc3`, which came out of a full review of the release candidates; the install, update and uninstall flow changed the most, so test a new install before relying on it.
+
+### Added
+
+- **Install report.** Every install writes `install-report.json` in the install folder (system, Python and TaskWeave versions, which steps worked, `doctor`'s check names and statuses; no paths, user names or file contents), and a failed install names it so it can be attached to a question. It is sent to the maintainer only with your yes, and the installer asks only when the release has a report address: this release has none, so nothing is sent. `--send-report` / `--no-send-report` (`-SendReport` / `-NoSendReport`) answer for unattended installs.
+- **Task names for the tools.** The tools now have names that fit any task: `start_task`, `check_task`, `get_task_result`, `cancel_task`, `list_tasks`, `list_task_artifacts` and `get_task_artifact` (`list_providers` is unchanged). The older `start_research_job` names stay next to them and run the same code, so existing setups and saved prompts keep working; a client now lists fifteen tools. `TASKWEAVE_TOOL_NAMES` (or **Settings** > Tool names) picks `both` (default), `task` or `research`. Replies point to the names the server offers.
+- **Codex CLI provider (switched off).** An adapter for OpenAI's Codex CLI ships with this release. It offers no permission mode until `scripts/verify_permissions.py --provider codex --candidate` passes with the real CLI; until then start-up refuses `codex` in `TASKWEAVE_PROVIDERS` and says how to verify it. See `docs/providers/codex.md`.
+- **Docker image.** `packaging/docker/Dockerfile` runs TaskWeave's HTTP server with Claude Code inside a container as an unprivileged user, signed in with an API key; see `docs/docker.md`.
+- **Claude Desktop extension.** `TaskWeave-<version>.mcpb` installs TaskWeave into Claude Desktop with a double-click: no Python and no installer. Claude Desktop installs the tested dependency versions itself (MCPB `uv` type) and asks for the workspace folder, optionally the Claude Code program and jobs folder, and the spending limits.
+- **Spending limits.** New daily and monthly budgets for all jobs together (`TASKWEAVE_DAILY_BUDGET_USD`, `TASKWEAVE_MONTHLY_BUDGET_USD`, or **Settings**). Once a budget is used up, new jobs are refused with `budget_exceeded` until it resets; each job's cost is recorded in its metadata (`cost_usd`) and in `spend.jsonl`. The installer's starter profile now caps a job at $2 and all jobs at $10 a day, and Health shows what was spent.
+- **Copy diagnostics.** Health in the control center has **Copy diagnostics**, and `taskweave doctor --support` prints the same support report: versions and every check, with secrets, home-folder paths, the user name, e-mail addresses and tunnel IDs removed, ready for an issue.
+- **Updates.** `taskweave update` installs the newest public release with its own installer (checked against GitHub's checksum); `--check` only reports, `--tag` picks a release. The control center shows a notice when a newer release exists, checking at most once a day; `TASKWEAVE_UPDATE_CHECK=false` turns that off.
+- **Uninstall.** `taskweave uninstall` removes what the installer added (the program, shortcuts, PATH entries, a private Python) and asks first; settings and jobs stay unless `--remove-data`, and the workspace is never removed. On Windows TaskWeave is also listed under **Settings, Apps** with an **Uninstall** button.
+- **Control center shortcuts.** `taskweave-control --background` opens the running control center, or starts one without a window first; `taskweave-control --stop` stops it. The installer adds **TaskWeave Control Center** and **Stop TaskWeave Control Center** shortcuts (Start menu, `~/Applications`, the Linux app menu), so the control center is one click away after a restart and no longer needs Task Manager to stop.
+- **Commands on PATH.** After an install, `taskweave`, `taskweave-control` and `taskweave-viewer` work in a new terminal: on Windows through `<install folder>\bin` on the user PATH, on macOS and Linux through `~/.local/bin`. `-NoPath` / `--no-path` skips it. This makes the `taskweave --version` steps in guides 02 and 09 work as written.
+- **One download.** Each release has one zip per system (`TaskWeave-<version>-<system>.zip`: Windows x64, macOS Apple silicon and Intel, Linux x64 and arm64; there is no Windows on ARM zip in 0.2.0, because `cryptography` and `cffi` have no Windows ARM64 build at the tested versions) holding the installer, the wheel, the pins, the EULA, checksums and every dependency. Extract it and double-click `install.cmd`, or run `sh install.sh`. `install.cmd` now says what to do when it is run from inside an unextracted zip.
+- **Offline install.** A `wheelhouse` folder of dependency wheels next to the installer (the install bundles carry one) is used first, with no network at all; PyPI is used only when those wheels do not fit the machine's Python.
+- **No Python needed.** When no Python 3.10 or newer is found, `install.cmd` / `install.ps1` and `install.sh` download Astral's uv (pinned by version and SHA-256, from PyPI) into the install folder, and uv installs a private Python 3.12 there for TaskWeave. PATH, the registry and any other Python are left alone; a download that does not match its pin stops the install.
+- **Public download.** Releases are published on the public [TaskWeave releases page](https://github.com/subhash7476/taskweave-releases/releases/latest); no GitHub account, invite or `gh` is needed. With no wheel next to it, the installer downloads the latest release over HTTPS (or `-Tag` / `--tag`) and checks every file against the SHA-256 GitHub reports. `-Gh` / `--gh` keeps the GitHub CLI download for a private repository.
+- **Licence agreement.** TaskWeave is free to use under its End User License Agreement (`EULA.md`). The installer shows where it is and asks once per version of the agreement; `-AcceptEula` / `--accept-eula` answers for unattended installs, and nothing is installed without a yes.
+- `constraints.txt`: the dependency versions a release was tested with. The installer passes it to pip, so a new install gets those versions instead of whatever PyPI has newest; if pip cannot install them, it tries once more without them and says so. It ships with every release and is checked against `SHA256SUMS.txt`.
+
+### Fixed
+
+- **Claude Code installed with npm on Windows.** `claude.cmd` was refused, which was the most common Windows setup failure. Since Claude Code 2.x, npm's `claude.cmd` only starts a native `claude.exe` inside npm's `node_modules`; TaskWeave now runs that program directly (never `cmd.exe`), and explains when npm skipped its install script and left a placeholder instead.
+- **Windows user names with accents or other alphabets.** The Connect page's launcher refused any path with a non-ASCII character, and the default install folder is under the user's profile, so a user named "José" could not use the ChatGPT path. It now writes Windows' plain short (8.3) name for such a folder, and only refuses when the drive has short names turned off, with the fix (`-Root C:\TaskWeave`) in the message.
+- **Intel Macs.** cryptography (needed by the MCP SDK) stopped publishing Intel-Mac wheels in 49.0, so pip would try to build it from source there and the install would fail. TaskWeave now requires `cryptography<49` on Intel Macs, and `constraints.txt` pins 48.0.1 everywhere.
+- The README's `gh` install command now downloads `SHA256SUMS.txt` too; before, that path installed the wheel without checking it. The README and guide 02 no longer tell you to add `--tag` to `gh release download`, which has no such flag: put the tag right after `download`.
+- The starter workspace's `README.txt` now says jobs are read-only by default, instead of saying the agent can edit files there.
+- **Add to Claude Desktop** changes only Claude Desktop's own config file in the places Claude Desktop keeps it. Before, the page would preview and write any file named `claude_desktop_config.json`.
+- Windows: a job's `metadata.json`, `report.txt`, manifests, cancel requests and the settings file are written even while another program (the viewer, the control center, a virus scanner) is reading the old file. Before, the write could fail with `PermissionError`, which is the likely cause of the occasional failure of the timeout test on Windows.
+
+### Docs
+
+- **Task templates.** `docs/task-templates.md` has eleven ready-to-use prompts (a codebase tour, a bug review, a security pass, uncommitted changes, document summaries, a document comparison, a data question, a research memo, documentation, tests, release notes), each with the permission mode it needs and the files it returns. It is published with the guides and linked from guide 08 and the README.
+- **Landing page.** The public page now starts with what TaskWeave is for, a table of the ways in (the Claude Desktop extension, the full install, ChatGPT, Docker, other clients), the sign-ins it works with, spending limits and a short safety summary.
+- **Docker from the release files.** Releases now carry the `Dockerfile`, so the image can be built from the release page without the source code (`docs/docker.md`, "Build").
+- **Sign in with an API key, Bedrock or Vertex.** A README section lists the variables for each way Claude Code can sign in, which of them reach Claude Code by themselves and which need `TASKWEAVE_PASS_ENV`, where to set them for a terminal, Docker and Claude Desktop, which one Claude Code picks when several are present, and how to check it.
+
+## 0.2.0rc3 (2026-11-03)
+
+Third release candidate for 0.2.0. It adds named working folders and the launcher fix below to `0.2.0rc2`; install it with `-Tag v0.2.0rc3`.
+
+### Added
+
+- **Named working folders**, each with its own highest permission mode (`TASKWEAVE_FOLDERS`, or *Working folders* in a settings profile). `start_research_job` takes `folder="<name>"`; the job runs with that folder as its working directory, so write access exists only there. A job's mode must not exceed the folder's mode or the server's permission cap, and a path is never accepted. `list_providers` shows each folder's name and highest mode (no paths); Health lists the folders. One working folder per job: Claude Code 2.1.286 did not enforce deny rules for extra folders, so mixed access in one job is not offered.
+
+### Fixed
+
+- The Connect page's variables launcher now carries the profile's read-only data folders (`TASKWEAVE_DATA_DIRS`) and working folders. Before this it silently left them out, so a data folder saved in Settings never reached the job. Write the launcher again after changing folders.
+
+## 0.2.0rc2 (2026-11-03)
+
+Second release candidate for 0.2.0. It adds the fixes below to `0.2.0rc1`; install it with `-Tag v0.2.0rc2`.
+
+### Fixed
+
+- Claude Code 2.1.317 prints `--output-format json` as one JSON array of every session event when `--restricted` is passed. TaskWeave now takes only the final `result` element, in jobs, the viewer and the setup test, and never returns the other events (they hold host paths, the user name and tool output). Before this fix every job's report was the raw array, cut short, and the setup test failed with *The reply did not contain the expected text*.
+- An error result with no text of its own (for example `error_max_budget_usd`) now has a readable report naming the cause, instead of an empty one.
+- The setup test's cost cap is $0.50 instead of $0.05. Creating Claude Code's prompt cache alone can cost about $0.25 on a large model, so $0.05 stopped the CLI before it replied.
+
+### Docs
+
+- Windows: the guides, the README and `taskweave doctor` now explain that an npm install of Claude Code gives a `claude.cmd` shim TaskWeave refuses, how to install the native `claude.exe` (`irm https://claude.ai/install.ps1 | iex`), how to check with `where.exe claude`, and how to remove the npm copy.
+
+## 0.2.0rc1 (2026-11-03)
+
+First release candidate for 0.2.0, and the first release with a browser installer, user guides and a Claude Desktop button. Do not use `0.2.0rc1` with Claude Code 2.1.317 or newer, whose output it cannot read (fixed in `0.2.0rc2`).
+
+### Install
+
+- A browser-first Windows install: download the wheel, `install.ps1`, `taskweave_install.py`, `install.cmd` and `SHA256SUMS.txt` into one folder, then double-click `install.cmd`. The installer finds the wheel itself; no command and no file name are typed.
+- `install.cmd` runs `install.ps1` with `-ExecutionPolicy Bypass`, which is needed because a browser-downloaded script carries the mark that the default Windows policy refuses. It forwards arguments and the exit code, and pauses only when `TASKWEAVE_NO_PAUSE` is unset.
+- The installer uses the one TaskWeave wheel next to it when neither `--wheel` nor `--tag` is given. Two wheels stop and are named; a browser-renamed `... (1).whl` is ignored and named.
+- `scripts/make_checksums.py` writes `SHA256SUMS.txt` in GNU format. The installer checks a local wheel against it and stops on a mismatch with a plain message; an explicit `--sha256` still wins, and the `gh` path still uses GitHub's digest.
+- Prerequisite messages name the missing program, its official download page and the command that proves it. The installer still does not install other vendors' software.
+
+### Setup, Claude Desktop and ChatGPT
+
+- The first-run setup wizard: folders, health checks, a capped tool-free test task, and the client connection step (PR 23).
+- **Add to Claude Desktop**: the Connect step finds `claude_desktop_config.json`, previews the entry, keeps a byte-exact backup and writes atomically. A file that changes after the preview is refused with 409; a file held by a running Claude Desktop is refused with the quit-Claude-Desktop message. The page never shows other servers' values, and it never creates a missing config file.
+- The Connect page: launcher generation and proof, tunnel-client detection and offline check, tunnel profile creation, start-script generation with a masked runtime-key prompt, `/readyz`, the readiness light and the first-job watcher (PRs 24 to 26).
+- ChatGPT setup is Windows-only by design and still needs OpenAI's tunnel, a runtime key, the *Tunnels* roles and a plan that allows custom connectors.
+
+### Jobs, permissions and clients
+
+- Stable `error_code` values and provider-neutral result fields (PR 13).
+- Atomic report writes, expired-thread errors and the distribution check (PR 14).
+- Slow job work outside the manager lock (PR 15).
+- `taskweave doctor`, the Windows installer and opt-in desktop notifications (PR 16).
+- Opt-in thread carry-over (PR 17).
+- Read-only attachments (PR 18).
+- Cancel a job from the control center (PR 19).
+- A timing-race fix in the termination-failure test (PR 20).
+- Opt-in live tail for running jobs (PR 21).
+- Threads, returned files as artifacts, the control center with profiles and per-job model/effort, the Health section, read-only data folders, and the provider-neutral layer (PRs 4 to 10).
+- Every job is read-only by default. `read_write` and `full_repository` are opt-in and capped by the operator's ceiling; `full_repository` is best effort, not a sandbox.
+
+### Guides and release engineering
+
+- Eleven task-focused guides under `docs/guides/`, linked from the README's first screen. Each has the same shape, a plain-words glossary and an "If it does not match" table.
+- `tests/test_guides.py` keeps the guides true: links and anchors, required sections, real command flags, tunnel-client commands tied to the verified-versions manifest, step budgets, the plain-words rule and a hygiene message for the guide folder.
+- `scripts/compare_dists.py` makes the candidate-to-final carry-over mechanical: only the version string, `README.md` and `docs/guides/` may differ.
+- One release-asset list in `scripts/release_assets.py`, checked against the README's release and checksum commands.
+- The verification template and record live under `docs/release/`; they do not ship in the sdist.
+
+### Upgrading from 0.1.0
+
+1. Download the new release's wheel and installer files and run the installer again. Your settings file and jobs are kept; a newer version upgrades the package in place.
+2. Run `taskweave doctor --json` and compare the version with `taskweave --version`.
+3. If you connected Claude Desktop by hand, either keep the existing entry or use the new **Add to Claude Desktop** button. The button writes the profile-based entry and keeps a backup.
+4. If you connected ChatGPT, the Connect page can write the same launcher and start script it writes for a new setup. The runtime key is still entered only in the start script's own prompt.
+
+### Compatibility changes
+
+See the README's [Compatibility changes from the pre-release behavior](docs/reference.md#compatibility-changes-from-the-pre-release-behavior). The old `claude-research-bridge` command names and `CLAUDE_BRIDGE_*` settings still work for now.
+
+### Known limits
+
+- The ChatGPT path is Windows-only.
+- Claude Desktop is not an official Linux application; the guides use the snippet on Linux.
+- The release is private. There is no PyPI package and no public download.
+- The installers are unsigned. Windows may show a download warning; the guides explain the safe two clicks for a file from this private repository.
+- Real-credential runs A to I are recorded in the verification record for this release. Items not yet verified are listed there and in the README's checklist; the notes here do not claim more than that record.
+
+### Files in this release
+
+- `taskweave_mcp-0.2.0-py3-none-any.whl`
+- `taskweave_mcp-0.2.0.tar.gz`
+- `install.ps1`, `install.sh`, `taskweave_install.py`, `install.cmd`
+- `SHA256SUMS.txt`
+
+The checksum file protects against a wrong, partial or corrupted download. It does not protect against a malicious release: whoever can replace the wheel can replace the checksum file next to it.
+
+### Pull requests since v0.1.0
+
+| PR | Title |
+|---|---|
+| 3 | Explain installing, configuring and starting the tunnel client on a new machine |
+| 4 | Group jobs into threads and show them as conversations in the viewer |
+| 5 | Save text files Claude returns in its report as job artifacts |
+| 6 | Add a control center with settings profiles and per-job model and effort |
+| 7 | Bring the README up to date with threads, returned files and the control center |
+| 8 | Add a Health section to the control center |
+| 9 | Make the provider layer provider-neutral (multi-provider groundwork) |
+| 10 | Add read-only data folders for read_only jobs |
+| 11 | Make CI manual-only: Ubuntu by Run workflow, macOS on Azure, Windows local |
+| 12 | Add a manually started Azure Pipelines run for macOS |
+| 13 | Add stable error codes, neutral result fields and viewer deep links |
+| 14 | Hygiene: atomic report, expired-thread errors, dist check, ruff |
+| 15 | Keep slow job work outside the manager lock |
+| 16 | Add taskweave doctor, a Windows installer and opt-in desktop notifications |
+| 17 | Add opt-in thread carry-over |
+| 18 | Deliver attachments to read_only jobs |
+| 19 | Cancel a job from the control center |
+| 20 | Fix a timing race in the termination-failure test |
+| 21 | Add an opt-in live tail for running jobs (TASKWEAVE_STREAM_OUTPUT) |
+| 22 | Stage 1: one-command installer (standalone module, thin shims, gh download with SHA-256 check) |
+| 23 | Add first-run setup wizard and tool-free taskweave run-test (onboarding stage 2) |
+| 24 | Add Connect page, launcher generator and proof, and --setup-check (tunnel step PR A) |
+| 25 | Connect: create the tunnel profile and write the start script (Stage 3, PR B1) |
+| 26 | Connect: readiness light and first-job watcher (Stage 3, PR B2) |
+
+The 0.2.0 work on this branch (the browser installer, checksums, the Claude Desktop button, the guide checker and guides, the comparison tool, this changelog and the verification template) becomes pull requests before the candidate is tagged; its pull requests will be added to this table when they merge.
+
+## 0.1.0 (2026-10-30)
+
+The first private release: the TaskWeave rename, `TASKWEAVE_*` settings, the private GitHub Release procedure, the MCP tools, background jobs with a fixed workspace, and the first tunnel-client setup notes. Pull requests 1 and 2.
