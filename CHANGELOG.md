@@ -2,6 +2,19 @@
 
 All notable changes to TaskWeave. Releases are published on the public TaskWeave releases page (https://github.com/subhash7476/taskweave-releases/releases); TaskWeave is not published to PyPI.
 
+## 0.2.1 (2026-11-04)
+
+Fixes jobs from ChatGPT and Claude Desktop that ignored the working folder set in Settings (see the first entry below). Install it over 0.2.0 with `taskweave update`.
+
+### Added
+
+- **Default permission mode and default working folder.** New settings (`TASKWEAVE_DEFAULT_PERMISSION_MODE`, `TASKWEAVE_DEFAULT_FOLDER`, or *Default permission mode* and *Default working folder* in Settings) say what a job gets when the client asks for nothing. ChatGPT and Claude Desktop usually send only a prompt, so before this every such job ran `read_only` in the workspace, and a working folder you added (for example a drive folder in Full Repository) was never used. A default can never exceed the permission cap or the folder's own mode; TaskWeave refuses to start and says which. The Connect page's launcher carries both settings, and `list_providers` shows them.
+- **Stale launcher check.** The Connect page's variables launcher copies the settings into itself when it is written. The first-job check now compares it with the saved profile (workspace, data folders, working folders, permission cap, defaults) and says plainly when it is out of date and must be written again.
+
+### Changed
+
+- `start_task` no longer advertises `permission_mode` as defaulting to `read_only` in its schema. A client fills defaults from the schema, which stopped the operator's default from applying. The server still uses `read_only` unless a default mode is set.
+
 ## 0.2.0 (2026-11-04)
 
 The first final release of 0.2.0. It adds everything below to `0.2.0rc3`, which came out of a full review of the release candidates; the install, update and uninstall flow changed the most, so test a new install before relying on it.
