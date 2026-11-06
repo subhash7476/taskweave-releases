@@ -115,9 +115,9 @@ Current Claude capabilities:
 - direct video input: no
 - artifact output: yes, text files only. Claude returns each requested file inline in
   its report between `<taskweave-artifact filename="...">` and `</taskweave-artifact>`
-  lines; after the run the server saves it under the job-local `artifacts/` directory
+  lines; after the run the server saves it under the job-local `reply-artifacts/` directory, numbered `01.csv`, `02.md`, ...
   (see "Files Claude returns" in the README). Claude itself never writes there.
-- artifact retrieval: yes (report plus files already staged under the job-local `artifacts/` directory)
+- artifact retrieval: yes (report plus files already staged under the job-local `reply-artifacts/` directory, or `artifacts/` in job folders from 0.2.1 and earlier)
 - permission modes: `read_only`, `read_write`, `full_repository`
 - read-only data folders: yes, for `read_only` jobs only (`--add-dir`; see "Read-only data folders" in the README)
 
@@ -160,10 +160,10 @@ adapter passes the values as `--model`, `--effort`, `--max-budget-usd` and
 - Only text/Markdown/CSV/PDF/PNG/JPEG/WebP/GIF are accepted, with signature
   validation and strict size/count limits.
 - No provider-visible workspace copies are created in this batch.
-- Only `jobs_dir/<job_id>/artifacts/` and the report are scanned for artifacts.
+- Only `jobs_dir/<job_id>/reply-artifacts/` (`artifacts/` in older job folders) and the report are scanned for artifacts.
   Files a provider writes elsewhere in the workspace are not copied into the
   artifact directory in this batch.
-- Symlinks and Windows junctions are rejected at the `artifacts/` directory and
+- Symlinks and Windows junctions are rejected at the `reply-artifacts/` directory and
   during the walk. The scanner never hashes or retrieves a path that resolves
   outside the job-local artifact directory.
 - Artifact retrieval never exposes absolute host paths. The response budget

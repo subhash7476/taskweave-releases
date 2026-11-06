@@ -32,11 +32,13 @@ Learn the habits that make a TaskWeave job useful: choosing a permission mode, w
 
 6. Use threads for follow-ups. Pass the same `thread_id` from the first job. Each job still starts a fresh Claude session, so repeat any context the follow-up needs. See [Threads](../reference.md#threads).
 
-7. Ask for files back when a report is not enough. A job can return a CSV, a patch or another small file as an artifact. The control center and `list_job_artifacts` show them; `get_job_artifact` fetches the content. See [Artifacts and attachments](../reference.md#artifacts-and-attachments).
+7. Ask for files back when a report is not enough. A job can return a CSV, a patch or another small file as an artifact. TaskWeave saves them in the job's `reply-artifacts` folder, numbered in order (`01.csv`, `02.md`, ...); the listing keeps the name Claude gave each file. The control center and `list_task_artifacts` show them; `get_task_artifact` fetches the content. See [Artifacts and attachments](../reference.md#artifacts-and-attachments).
 
-8. Watch cost, model and effort. The profile can limit models and effort, and the test task is capped. A job's metadata records the model and effort it used. Start with the default; change one thing at a time.
+8. Send files with a read-only job. A chat client cannot pass on a file you dropped into the chat, so ask it to start the task and wait for your files (for example: "Start a read-only TaskWeave task that waits for me to upload the files, with this prompt: ..."). The job gets its ID at once with status `waiting_for_files`, and TaskWeave opens the control center at that job on the computer that runs it. Click **Upload files**, choose or drop the files, and press **Upload and start**. The job starts as soon as the files are checked; they are saved in its `prompt-artifacts` folder as `01.pdf`, `02.png`, and so on. You have 30 minutes by default (`TASKWEAVE_UPLOAD_WAIT_SECONDS`), and a job takes one upload. Allowed types are text, Markdown, CSV, PDF, PNG, JPEG, WebP and GIF. This needs TaskWeave 0.3.0rc1 or newer, and it has not yet been checked with a real ChatGPT connection. See [Files you upload in the control center](../reference.md#files-you-upload-in-the-control-center).
 
-9. Use the control center's Jobs view or the read-only viewer for a long job:
+9. Watch cost, model and effort. The profile can limit models and effort, and the test task is capped. A job's metadata records the model and effort it used. Start with the default; change one thing at a time.
+
+10. Use the control center's Jobs view or the read-only viewer for a long job:
 
    ```powershell
    taskweave-viewer --jobs-dir <jobs folder>
@@ -44,7 +46,7 @@ Learn the habits that make a TaskWeave job useful: choosing a permission mode, w
 
    The viewer does not run jobs; it only reads the jobs folder.
 
-10. For an HTTP client other than Claude Desktop or ChatGPT, start TaskWeave over HTTP and put your own tunnel or reverse proxy in front of it:
+11. For an HTTP client other than Claude Desktop or ChatGPT, start TaskWeave over HTTP and put your own tunnel or reverse proxy in front of it:
 
     ```powershell
     taskweave --transport http --port 8080
@@ -52,7 +54,7 @@ Learn the habits that make a TaskWeave job useful: choosing a permission mode, w
 
     Keep it on loopback and read [Use remotely (HTTP behind a tunnel)](../reference.md#use-remotely-http-behind-a-tunnel) before exposing it.
 
-11. Practise the five examples below in a throwaway workspace. Start with the read-only ones; only use a write mode when you can delete the workspace afterwards.
+12. Practise the five examples below in a throwaway workspace. Start with the read-only ones; only use a write mode when you can delete the workspace afterwards.
 
 #### Example 1: Summarize a repository
 
@@ -91,6 +93,7 @@ Learn the habits that make a TaskWeave job useful: choosing a permission mode, w
 - A clear rejection when a requested mode is above the ceiling.
 - Follow-ups grouped under the same thread.
 - Artifacts listed in the control center and fetchable by the client.
+- A job that waits for files starts as soon as you upload them in the control center.
 - A job that times out stops and keeps its partial output.
 
 ## If it does not match
@@ -102,6 +105,10 @@ Learn the habits that make a TaskWeave job useful: choosing a permission mode, w
 | The job runs too long | Give a smaller prompt or a narrower folder; the timeout is a limit, not a target. |
 | A follow-up has no context | Repeat the context; each job starts a fresh Claude session. Pass the `thread_id` to group the turns. |
 | An artifact is missing | Ask for a small file and name the format; very large files are refused or returned as a reference. |
+| The upload page does not open | Start `taskweave-control` yourself; every control center page shows a banner for each job waiting for files. TaskWeave does not open a page when one is already open, inside a container, in a Linux session without a display, or with `TASKWEAVE_OPEN_UPLOAD_PAGE=false`. |
+| The upload is refused | Check the file type and the limits shown in the dialog (10 files, 10 MiB each, 25 MiB in all by default). A job takes one upload; for more files, start a new task. |
+| A job ended with `upload_timeout` | No files arrived in time. Start the task again and upload sooner, or raise `TASKWEAVE_UPLOAD_WAIT_SECONDS`. |
+| Waiting for files is rejected | It works only for `read_only` jobs and not together with `attachments`. Ask for a read-only task. |
 | HTTP clients cannot connect | Check the token, the loopback address and the tunnel; see [Troubleshooting](../reference.md#troubleshooting). |
 | You are unsure a mode is safe | Use `read_only` and ask for a plan first. A plan is cheaper than a bad edit. |
 

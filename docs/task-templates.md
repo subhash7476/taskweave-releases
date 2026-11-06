@@ -38,6 +38,8 @@ Ready-to-use prompts for common jobs. Copy one, change the parts in *italics*, a
 
 **Mode:** `read_only` with attachments (PDF, text, Markdown, CSV or images) · **Returns:** a one-page summary
 
+From ChatGPT, or any client that cannot pass the files itself, ask it to start the task and wait for you to upload the documents; then upload them in the control center when it opens. See [Files you upload in the control center](reference.md#files-you-upload-in-the-control-center).
+
 > Read the attached documents and write a one-page summary: the decisions made, the figures that matter, open questions, and any place where the documents contradict each other. Give the document and page (or section) for every point.
 
 ### 6. Compare two versions of a document

@@ -20,7 +20,7 @@ TaskWeave runs tasks in the background with the Claude Code you already have sig
 
 You need Claude Code installed and signed in (Before you install lists the checks). The installer does the rest. It asks you to accept the licence agreement first.
 
-1. From the [latest release](https://github.com/subhash7476/taskweave-releases/releases/latest), download the one zip for your computer: `windows-x64` (most Windows PCs; there is no Windows on ARM zip in 0.2.0), `macos-arm64` (Apple silicon), `macos-x64` (Intel Macs), `linux-x64` or `linux-arm64`.
+1. From the [latest release](https://github.com/subhash7476/taskweave-releases/releases/latest), download the one zip for your computer: `windows-x64` (most Windows PCs; there is no Windows on ARM zip yet), `macos-arm64` (Apple silicon), `macos-x64` (Intel Macs), `linux-x64` or `linux-arm64`.
 2. Extract it (on Windows: right-click, **Extract All**).
 3. In the extracted folder, double-click `install.cmd` (Windows), or run `sh install.sh` in Terminal (macOS, Linux).
 

@@ -71,6 +71,7 @@ Find the failing layer and collect the right evidence for a GitHub issue. About 
 | `/readyz` is not 200 | The tunnel client or TaskWeave is not running, or the key is wrong. Start the script and read `taskweave-stderr.log`. |
 | The tunnel is in the wrong workspace | Associate it with the ChatGPT workspace in the Platform tunnel settings; roles can take up to 30 minutes. |
 | A job failed with `server_restarted` | The server stopped while the job ran. Start a new job; return the same thread ID if you want it grouped. |
+| A job stays `waiting_for_files` | It is waiting for you to upload its files in the control center. Open `taskweave-control` on the computer that runs TaskWeave and use the job's banner, or cancel the job. See [Get real work done](08-get-real-work-done.md), step 8. |
 | You cannot open an issue | Sign in to GitHub (a free account is enough). Issues are open to everyone on the public releases repository, so remove secrets first. |
 
 ## Done when

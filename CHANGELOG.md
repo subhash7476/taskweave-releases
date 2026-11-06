@@ -2,6 +2,24 @@
 
 All notable changes to TaskWeave. Releases are published on the public TaskWeave releases page (https://github.com/subhash7476/taskweave-releases/releases); TaskWeave is not published to PyPI.
 
+## 0.3.0rc1 (2026-11-06)
+
+First release candidate for 0.3.0. It adds files you upload in the control center for a ChatGPT job, and numbered files in their own job folders, to `0.2.1`; install it with `-Tag v0.3.0rc1` (`--tag v0.3.0rc1` on macOS and Linux).
+
+### Added
+
+- **Files you upload for a ChatGPT job.** ChatGPT cannot pass on a file you dropped into the chat, so `start_task` takes `wait_for_files: true`: the job is created with the new status `waiting_for_files` and waits, unqueued, while you upload the files in the control center on the computer running TaskWeave. The server opens the control center at the job (starting it if needed) unless a page is already open, and every open page shows a banner with an **Upload files** button. The job starts as soon as the files are saved in its `prompt-artifacts` folder; the server checks them again with its own limits first. Read-only jobs only, one upload per job, the same types and limits as `attachments`. A job with no upload within `TASKWEAVE_UPLOAD_WAIT_SECONDS` (default 1800) fails with reason `upload_timeout`; `TASKWEAVE_OPEN_UPLOAD_PAGE=false` stops the page from opening. Waiting jobs survive a restart and can be cancelled. Not yet tried through a real ChatGPT tunnel.
+- The `start_task` description now names the fields of an attachment (`filename`, `media_type`, `data_base64`, optional `sha256`).
+
+### Changed
+
+- **Numbered files in each job folder.** Files sent with a prompt are now saved in the job's `prompt-artifacts` folder and files Claude returns in its `reply-artifacts` folder, numbered in order: `01.pdf`, `02.png`, and so on. The original names are kept: a sent file's name in `attachments.json` (shown in the viewer, never put in the prompt), a returned file's name as the artifact's `filename`, with the new `stored_as` saying where it is in the job folder. The report's note now reads `[Artifact saved: summary.csv as 01.csv (...)]`. Job folders from 0.2.1 and earlier (`attachments`, `artifacts`) are still read.
+
+### Docs
+
+- The user guides explain sending files with a read-only task and uploading them in the control center, with the new troubleshooting entries (`waiting_for_files`, `upload_timeout`, a refused upload).
+- The README says what happens when a timed-out or cancelled job's process tree cannot be confirmed stopped: TaskWeave kills the job's own process, finishes the job, and keeps `termination_error`, because a child process the job started may still be running. This is how earlier releases behaved too.
+
 ## 0.2.1 (2026-11-04)
 
 Fixes jobs from ChatGPT and Claude Desktop that ignored the working folder set in Settings (see the first entry below). Install it over 0.2.0 with `taskweave update`.

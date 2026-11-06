@@ -12,7 +12,7 @@ One short guide per task. Start with [Start here](00-start-here.md); it explains
 | [Prepare ChatGPT on OpenAI](05-prepare-chatgpt-on-openai.md) | The tunnel, runtime key, roles and the wait |
 | [Connect ChatGPT](06-connect-chatgpt.md) | The launcher, tunnel client, start script, connector and first job |
 | [Your first real task](07-your-first-real-task.md) | One read-only job from start to report |
-| [Get real work done](08-get-real-work-done.md) | Permission modes, prompts, threads, artifacts and five examples |
+| [Get real work done](08-get-real-work-done.md) | Permission modes, prompts, threads, sending and returning files, and five examples |
 | [Update, move or remove](09-update-move-or-remove.md) | Upgrades, rollback, another computer and removal |
 | [When something is wrong](10-when-something-is-wrong.md) | Layer-by-layer checks and a support issue |
 

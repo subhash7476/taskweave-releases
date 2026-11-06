@@ -27,7 +27,7 @@ Send one read-only job from Claude Desktop, watch it finish, and find its report
 
 6. In the control center's Jobs view, find the job. Open it and read the prompt, status, report and any files. The same information is on disk under `<jobs folder>/<job id>/`.
 
-7. Open the folder and look at the files: `metadata.json`, `prompt.txt`, `stdout.txt`, `stderr.txt`, `report.txt` and `artifacts.json`. A read-only job can write its report and artifacts; it cannot change the workspace.
+7. Open the folder and look at the files: `metadata.json`, `prompt.txt`, `stdout.txt`, `stderr.txt`, `report.txt` and `artifacts.json`. Files the job returned are in a `reply-artifacts` folder (`01.csv`, `02.md`, ...), and files sent with the prompt are in `prompt-artifacts`. A read-only job can write its report and artifacts; it cannot change the workspace.
 
 8. Optional: open the read-only session viewer with the jobs folder:
 
