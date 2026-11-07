@@ -113,7 +113,7 @@ set "ROOT=%~dp0"
 exit /b %ERRORLEVEL%
 ```
 
-Create the profile with `C:\TaskWeave\venv\Scripts\taskweave-control.exe --config C:\TaskWeave\taskweave.toml` (Settings, *New profile*, name `chatgpt`, workspace `C:\TaskWeave\workspace`, jobs folder `C:\TaskWeave\jobs`). Do not rely on the default settings file in `%LOCALAPPDATA%` here: if you start the tunnel client from the Microsoft Store version of PowerShell, TaskWeave cannot see that folder (see [Windows: a profile or settings file is not found](reference.md#windows-a-profile-or-settings-file-is-not-found)). Model, effort and cost-cap changes made in the control center then apply to ChatGPT's next job without restarting the tunnel client; folder and limit changes still need a restart.
+Create the profile with `C:\TaskWeave\venv\Scripts\taskweave-control.exe --config C:\TaskWeave\taskweave.toml` (Settings, *New profile*, name `chatgpt`, workspace `C:\TaskWeave\workspace`, jobs folder `C:\TaskWeave\jobs`). Do not rely on the default settings file in `%LOCALAPPDATA%` here: if you start the tunnel client from the Microsoft Store version of PowerShell, TaskWeave cannot see that folder (see [Windows: a profile or settings file is not found](reference.md#windows-a-profile-or-settings-file-is-not-found)). Model, effort and cost-cap changes made in the control center then apply to ChatGPT's next job without restarting the tunnel client, and so do working folders, their aliases and descriptions, the default folder and mode, and folder routing. The workspace, jobs folder, permission cap and limits still need a restart.
 
 Run the Step 1 check again through the launcher, exactly the way the tunnel client will start it (note the forward slashes):
 
