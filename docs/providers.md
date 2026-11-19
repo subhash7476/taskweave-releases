@@ -59,6 +59,11 @@ A policy is checked against what the CLI can do, at startup and before each job:
 - **Cost cap:** if a cap is set and the CLI cannot stop a job at it, startup fails and jobs are
   refused, so a cap is never silently ignored. Setting `TASKWEAVE_<ID>_ALLOW_UNCAPPED=true` accepts
   uncapped jobs; they record `max_cost_usd: null`.
+- **Client cost cap:** a client's `max_cost_usd` on `start_task` may only lower the operator's cap
+  (`cost_cap_above_limit` otherwise) and applies on its own when no cap is set. On a CLI that cannot
+  enforce a cap it is always refused (`cost_cap_not_enforceable`), `ALLOW_UNCAPPED` included,
+  because running uncapped is not what the client asked for. Replies report `max_cost_usd` and
+  `max_cost_source` (`operator`, `client`, `test` or `null`).
 - **Fallback model** is rejected for a CLI that has none.
 
 `list_providers` reports each enabled provider with its own `job_choices` and marks the default.
